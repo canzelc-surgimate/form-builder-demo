@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surgimate — Form Builder Pipeline</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    text-align: center;
+    padding: 40px 20px 20px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 15px;
+    color: #94a3b8;
+    font-weight: 400;
+  }
+
+  /* ─── Stage Navigation ─── */
+  .stage-nav {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 30px auto 10px;
+    max-width: 900px;
+    position: relative;
+  }
+  .stage-btn {
+    flex: 1;
+    max-width: 200px;
+    padding: 14px 10px 12px;
+    border: none;
+    background: rgba(255,255,255,0.05);
+    color: #64748b;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stage-btn:first-child { border-radius: 10px 0 0 10px; }
+  .stage-btn:last-child { border-radius: 0 10px 10px 0; }
+  .stage-btn:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.08); }
+  .stage-btn:hover { background: rgba(255,255,255,0.1); color: #94a3b8; }
+  .stage-btn.active {
+    color: #fff;
+    background: rgba(96, 165, 250, 0.2);
+  }
+  .stage-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    width: 80%;
+    height: 3px;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    border-radius: 3px 3px 0 0;
+  }
+  .stage-num {
+    display: block;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+  .stage-btn.active .stage-num {
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ─── Arrow connector between stages ─── */
+  .arrow-row {
+    display: flex;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 50px;
+  }
+  .arrow-segment {
+    flex: 1;
+    max-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    position: relative;
+  }
+  .arrow-segment .line {
+    width: 60%;
+    height: 2px;
+    background: #334155;
+    position: relative;
+  }
+  .arrow-segment .line::after {
+    content: '▸';
+    position: absolute;
+    right: -10px;
+    top: -9px;
+    color: #334155;
+    font-size: 14px;
+  }
+  .arrow-segment.done .line { background: #60a5fa; }
+  .arrow-segment.done .line::after { color: #60a5fa; }
+
+  /* ─── Main Stage Area ─── */
+  .stage-container {
+    max-width: 1000px;
+    margin: 10px auto 40px;
+    padding: 0 20px;
+  }
+
+  .stage-panel {
+    display: none;
+    animation: fadeSlideIn 0.4s ease;
+  }
+  .stage-panel.visible { display: block; }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Visual Card ─── */
+  .visual-card {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+  }
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .card-title { font-size: 16px; font-weight: 700; }
+  .card-subtitle { font-size: 12px; color: #64748b; font-weight: 400; }
+
+  .card-body {
+    padding: 24px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  /* ─── PDF Mockup ─── */
+  .pdf-frame {
+    width: 420px;
+    min-width: 420px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pdf-page {
+    padding: 30px 28px 24px;
+    position: relative;
+    min-height: 520px;
+  }
+
+  .pdf-logo {
+    width: 160px;
+    height: 32px;
+    background: linear-gradient(90deg, #1e40af, #3b82f6);
+    border-radius: 4px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+
+  .pdf-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 10px 0 4px;
+  }
+
+  .pdf-line {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    margin: 5px 0;
+  }
+  .pdf-line.short { width: 60%; }
+  .pdf-line.medium { width: 80%; }
+
+  .pdf-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 14px 0 6px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .pdf-field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 7px 0;
+  }
+  .pdf-field-label {
+    font-size: 10px;
+    color: #475569;
+    font-weight: 500;
+    min-width: 90px;
+  }
+  .pdf-field-box {
+    flex: 1;
+    height: 22px;
+    border: 1px solid #cbd5e1;
+    border-radius: 3px;
+    background: #f8fafc;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+  }
+  .pdf-field-box .filled-text {
+    font-size: 9px;
+    color: #1e293b;
+    font-weight: 500;
+  }
+  .pdf-field-box.has-phi .filled-text { color: #dc2626; }
+
+  .pdf-checkbox-row {
+    display: flex;
+    gap: 16px;
+    margin: 6px 0;
+  }
+  .pdf-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    color: #475569;
+  }
+  .pdf-checkbox-box {
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid #94a3b8;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #1e293b;
+    font-weight: 700;
+  }
+
+  .pdf-signature-line {
+    margin-top: 18px;
+    border-top: 1px solid #475569;
+    width: 55%;
+    padding-top: 3px;
+    font-size: 9px;
+    color: #64748b;
+  }
+
+  /* ─── PHI highlight ─── */
+  .phi-highlight {
+    position: relative;
+  }
+  .phi-highlight::after {
+    content: '⚠ PHI';
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 7px;
+    font-weight: 700;
+    color: #dc2626;
+    background: #fef2f2;
+    padding: 1px 4px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── Flattened overlay (strikethrough on fields) ─── */
+  .flattened .pdf-field-box {
+    border-color: transparent;
+    background: transparent;
+  }
+  .flattened .pdf-field-box .filled-text {
+    color: transparent;
+  }
+  .flattened .pdf-checkbox-box {
+    border-color: transparent;
+  }
+  .flattened .pdf-checkbox-box span { visibility: hidden; }
+  .flattened .phi-highlight::after { display: none; }
+
+  /* ─── Canvas Overlay ─── */
+  .canvas-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .canvas-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* ─── Detected Fields Overlay ─── */
+  .detected-field {
+    position: absolute;
+    border: 2px solid;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    font-size: 9px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .detected-field .handle {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 1px;
+    border: 1.5px solid;
+  }
+  .detected-field .handle.tl { top: -4px; left: -4px; }
+  .detected-field .handle.tr { top: -4px; right: -4px; }
+  .detected-field .handle.bl { bottom: -4px; left: -4px; }
+  .detected-field .handle.br { bottom: -4px; right: -4px; }
+  .detected-field .handle.ml { top: calc(50% - 3px); left: -4px; }
+  .detected-field .handle.mr { top: calc(50% - 3px); right: -4px; }
+
+  /* Confidence colors */
+  .detected-field.high {
+    border-color: #4CAF50;
+    background: rgba(76,175,80,0.10);
+    color: #2e7d32;
+  }
+  .detected-field.high .handle { border-color: #4CAF50; background: #fff; }
+
+  .detected-field.medium {
+    border-color: #FF9800;
+    background: rgba(255,152,0,0.10);
+    color: #e65100;
+  }
+  .detected-field.medium .handle { border-color: #FF9800; background: #fff; }
+
+  .detected-field.low {
+    border-color: #f44336;
+    background: rgba(244,67,54,0.10);
+    color: #c62828;
+  }
+  .detected-field.low .handle { border-color: #f44336; background: #fff; }
+
+  .detected-field.manual {
+    border-color: #2196F3;
+    background: rgba(33,150,243,0.10);
+    color: #1565c0;
+  }
+  .detected-field.manual .handle { border-color: #2196F3; background: #fff; }
+
+  .detected-field .confidence-badge {
+    position: absolute;
+    top: -10px;
+    right: -2px;
+    font-size: 7px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 8px;
+    color: #fff;
+  }
+  .detected-field.high .confidence-badge { background: #4CAF50; }
+  .detected-field.medium .confidence-badge { background: #FF9800; }
+  .detected-field.low .confidence-badge { background: #f44336; }
+
+  .detected-field .var-tag {
+    position: absolute;
+    bottom: -12px;
+    left: 0;
+    font-size: 7px;
+    font-weight: 600;
+    color: #fff;
+    background: #1565c0;
+    padding: 1px 5px;
+    border-radius: 0 0 4px 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .checkbox-detected {
+    width: 15px !important;
+    height: 15px !important;
+    padding: 0 !important;
+    justify-content: center;
+  }
+
+  /* ─── Description Panel (right side) ─── */
+  .desc-panel {
+    flex: 1;
+    min-width: 0;
+  }
+  .desc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .desc-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .desc-text {
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .tech-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .tech-pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05);
+  }
+  .tech-pill.aspose { border-color: #f87171; color: #fca5a5; }
+  .tech-pill.textract { border-color: #fb923c; color: #fdba74; }
+  .tech-pill.pdfjs { border-color: #facc15; color: #fde68a; }
+  .tech-pill.fabricjs { border-color: #a78bfa; color: #c4b5fd; }
+  .tech-pill.rails { border-color: #f87171; color: #fca5a5; }
+  .tech-pill.angular { border-color: #f472b6; color: #f9a8d4; }
+  .tech-pill.postgres { border-color: #60a5fa; color: #93c5fd; }
+
+  .detail-list {
+    list-style: none;
+    padding: 0;
+  }
+  .detail-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: #cbd5e1;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    line-height: 1.5;
+  }
+  .detail-list li .icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .phi-callout {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 8px;
+    font-size: 11px;
+    color: #fca5a5;
+    line-height: 1.6;
+  }
+  .phi-callout strong { color: #f87171; }
+
+  /* ─── Cost Analysis ─── */
+  .cost-card {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: rgba(255, 152, 0, 0.08);
+    border: 1px solid rgba(255, 152, 0, 0.25);
+    border-radius: 10px;
+  }
+  .cost-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fdba74;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .cost-table th {
+    text-align: left;
+    padding: 5px 6px;
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+  }
+  .cost-table td {
+    padding: 6px 6px;
+    color: #e2e8f0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    white-space: nowrap;
+  }
+  .cost-table td.cost {
+    font-weight: 700;
+    color: #4ade80;
+  }
+  .cost-table tr:last-child td { border-bottom: none; }
+  .cost-note {
+    margin-top: 8px;
+    font-size: 10px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+  .cost-note strong { color: #94a3b8; }
+
+  /* ─── Drag VAR chip ─── */
+  .var-sidebar-chip {
+    position: absolute;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: rgba(33,150,243,0.18);
+    border: 1.5px solid #2196F3;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #90caf9;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(33,150,243,0.25);
+    cursor: grabbing;
+  }
+  .var-sidebar-chip .chip-icon {
+    font-size: 12px;
+  }
+  .drag-trail {
+    position: absolute;
+    z-index: 9;
+    border-top: 2px dashed rgba(33,150,243,0.35);
+    transform-origin: left center;
+  }
+  .drop-target-field {
+    position: absolute;
+    z-index: 8;
+    border: 2px dashed #2196F3;
+    border-radius: 4px;
+    background: rgba(33,150,243,0.08);
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    font-size: 9px;
+    font-weight: 600;
+    color: #64b5f6;
+    animation: dropPulse 1.5s ease infinite;
+  }
+  @keyframes dropPulse {
+    0%,100% { border-color: rgba(33,150,243,0.6); background: rgba(33,150,243,0.06); }
+    50% { border-color: rgba(33,150,243,1); background: rgba(33,150,243,0.14); }
+  }
+  .var-source-panel {
+    position: absolute;
+    z-index: 10;
+    right: -8px;
+    top: 60px;
+    width: 102px;
+    background: #1e293b;
+    border: 1px solid rgba(33,150,243,0.3);
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .var-source-panel .panel-title {
+    font-size: 8px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 5px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .var-source-panel .var-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 4px;
+    font-size: 8px;
+    font-weight: 500;
+    color: #94a3b8;
+    border-radius: 4px;
+    margin-bottom: 2px;
+  }
+  .var-source-panel .var-item.active {
+    background: rgba(33,150,243,0.15);
+    color: #90caf9;
+    border: 1px solid rgba(33,150,243,0.3);
+  }
+  .var-source-panel .var-item .vi { font-size: 9px; }
+
+  @keyframes dragFloat {
+    0%,100% { transform: translate(0, 0); }
+    50% { transform: translate(-2px, -3px); }
+  }
+
+  /* ─── Animate All button ─── */
+  .play-row {
+    text-align: center;
+    margin: 20px 0 0;
+  }
+  .play-btn {
+    padding: 12px 32px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+  }
+  .play-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(59,130,246,0.4); }
+  .play-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .arch-btn {
+    padding: 12px 32px;
+    border: 2px solid #3b82f6;
+    border-radius: 30px;
+    background: #fff;
+    color: #3b82f6;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.1);
+  }
+  .arch-btn:hover { background: #3b82f6; color: #fff; box-shadow: 0 6px 24px rgba(59,130,246,0.3); transform: translateY(-1px); }
+
+  /* ─── Architecture Modal ─── */
+  .arch-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+  }
+  .arch-overlay.visible { display: flex; }
+  .arch-modal {
+    position: relative;
+    max-width: 95vw;
+    max-height: 92vh;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .arch-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+  }
+  .arch-modal-header h2 {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  .arch-close-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .arch-close-btn:hover { background: #ef4444; color: #fff; }
+  .arch-modal-body {
+    overflow: auto;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .arch-modal-body {
+    cursor: grab;
+  }
+  .arch-modal-body.dragging {
+    cursor: grabbing;
+  }
+  .arch-modal-body img {
+    max-width: 100%;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.15s ease;
+    transform-origin: 0 0;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .arch-modal-body img.zoomed {
+    max-width: none;
+    max-height: none;
+  }
+  .arch-zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .arch-zoom-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #475569;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .arch-zoom-btn:hover { background: #f1f5f9; border-color: #3b82f6; color: #3b82f6; }
+  .arch-zoom-level {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    min-width: 42px;
+    text-align: center;
+  }
+
+  /* ─── Watermark effect for flattened ─── */
+  .flatten-stamp {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 48px;
+    font-weight: 800;
+    color: rgba(59,130,246,0.12);
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    pointer-events: none;
+    z-index: 3;
+    white-space: nowrap;
+  }
+
+  /* ─── Footer ─── */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: #475569;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Surgimate — Form Builder Pipeline</h1>
+  <p>How a vendor PDF becomes an intelligent, data-filled form</p>
+</div>
+
+<!-- Stage Navigation -->
+<div class="stage-nav" id="stageNav">
+  <button class="stage-btn active" onclick="showStage(0)">
+    <span class="stage-num">1</span>Original Upload
+  </button>
+  <button class="stage-btn" onclick="showStage(1)">
+    <span class="stage-num">2</span>Flattened
+  </button>
+  <button class="stage-btn" onclick="showStage(2)">
+    <span class="stage-num">3</span>Canvas Overlay
+  </button>
+  <button class="stage-btn" onclick="showStage(3)">
+    <span class="stage-num">4</span>Field Detection
+  </button>
+</div>
+
+<div class="play-row" style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;">
+  <button class="play-btn" id="playBtn" onclick="playAll()">▶&ensp;Play Full Pipeline</button>
+  <button class="arch-btn" onclick="openArch()">🏗&ensp;System Architecture</button>
+</div>
+
+<!-- Architecture Modal -->
+<div class="arch-overlay" id="archOverlay" onclick="closeArchOutside(event)">
+  <div class="arch-modal">
+    <div class="arch-modal-header">
+      <h2>Surgimate — Form Builder System Architecture</h2>
+      <div class="arch-zoom-controls">
+        <button class="arch-zoom-btn" onclick="archZoom(-1)" title="Zoom out">−</button>
+        <span class="arch-zoom-level" id="archZoomLevel">100%</span>
+        <button class="arch-zoom-btn" onclick="archZoom(1)" title="Zoom in">+</button>
+        <button class="arch-zoom-btn" onclick="archZoomReset()" title="Reset zoom" style="font-size:13px;">⟲</button>
+      </div>
+      <button class="arch-close-btn" onclick="closeArch()" title="Close">✕</button>
+    </div>
+    <div class="arch-modal-body" id="archModalBody">
+      <img id="archImg" src="Surgimate Form Builder - System Architecture.png" alt="Surgimate Form Builder - System Architecture" ondblclick="archZoomToggle()" />
+    </div>
+  </div>
+</div>
+
+<div class="stage-container">
+
+  <!-- ═══════════ STAGE 1: Original Upload ═══════════ -->
+  <div class="stage-panel visible" id="stage0">
+    <div class="visual-card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(244,67,54,0.15);">📄</div>
+        <div>
+          <div class="card-title">Stage 1 — Original PDF Upload</div>
+          <div class="card-subtitle">Vendor form as received — may contain existing fields and PHI data</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pdf-frame">
+          <div class="pdf-page">
+            <div class="pdf-logo">ACME SURGERY CENTER</div>
+            <div class="pdf-title">Patient Information Form</div>
+            <div class="pdf-line medium"></div>
+            <div class="pdf-line short"></div>
+
+            <div class="pdf-section-label">Patient Details</div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">First Name</div>
+              <div class="pdf-field-box has-phi phi-highlight"><span class="filled-text">John</span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Last Name</div>
+              <div class="pdf-field-box has-phi phi-highlight"><span class="filled-text">Smith</span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Date of Birth</div>
+              <div class="pdf-field-box has-phi phi-highlight"><span class="filled-text">03/15/1985</span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Phone</div>
+              <div class="pdf-field-box has-phi phi-highlight"><span class="filled-text">(555) 123-4567</span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Address</div>
+              <div class="pdf-field-box has-phi phi-highlight"><span class="filled-text">123 Main St, Anytown</span></div>
+            </div>
+
+            <div class="pdf-section-label">Insurance</div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Provider</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Policy #</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+
+            <div class="pdf-section-label">Consent</div>
+            <div class="pdf-checkbox-row">
+              <div class="pdf-checkbox"><div class="pdf-checkbox-box"><span>✓</span></div> I agree to treatment</div>
+              <div class="pdf-checkbox"><div class="pdf-checkbox-box"><span></span></div> Authorize release</div>
+            </div>
+
+            <div class="pdf-signature-line">Patient Signature ___________________________</div>
+          </div>
+        </div>
+
+        <div class="desc-panel">
+          <div class="desc-badge" style="background:rgba(244,67,54,0.15);color:#f87171;">⚠️ Contains PHI</div>
+          <div class="desc-title">The vendor sends a PDF — sometimes pre-filled with patient data</div>
+          <div class="desc-text">
+            Customers upload form templates that may contain existing AcroForm fields and even pre-filled Protected Health Information (PHI). This is the raw input to our system.
+          </div>
+
+          <div class="tech-pills">
+            <span class="tech-pill angular">Angular</span>
+            <span class="tech-pill rails">Rails API</span>
+          </div>
+
+          <ul class="detail-list">
+            <li><span class="icon">📤</span>PDF uploaded via Admin → Form Builder UI</li>
+            <li><span class="icon">💾</span>Original PDF stored in PostgreSQL <code>form_templates.original_pdf</code></li>
+            <li><span class="icon">⚠️</span>May contain AcroForm fields with filled-in values</li>
+            <li><span class="icon">🔴</span>Red-flagged fields show potential PHI data</li>
+          </ul>
+
+          <div class="phi-callout">
+            <strong>🛡️ PHI Risk:</strong> Uploaded forms may contain real patient names, DOBs, phone numbers. Our pipeline <strong>never retains</strong> these values — they are stripped in the next stage.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STAGE 2: Flattened ═══════════ -->
+  <div class="stage-panel" id="stage1">
+    <div class="visual-card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(59,130,246,0.15);">🧹</div>
+        <div>
+          <div class="card-title">Stage 2 — Flattened PDF (Blank Form Template)</div>
+          <div class="card-subtitle">All interactive fields and PHI data removed — static visual only</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pdf-frame">
+          <div class="pdf-page flattened">
+            <div class="flatten-stamp">FLATTENED</div>
+            <div class="pdf-logo">ACME SURGERY CENTER</div>
+            <div class="pdf-title">Patient Information Form</div>
+            <div class="pdf-line medium"></div>
+            <div class="pdf-line short"></div>
+
+            <div class="pdf-section-label">Patient Details</div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">First Name</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Last Name</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Date of Birth</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Phone</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Address</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+
+            <div class="pdf-section-label">Insurance</div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Provider</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Policy #</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+
+            <div class="pdf-section-label">Consent</div>
+            <div class="pdf-checkbox-row">
+              <div class="pdf-checkbox"><div class="pdf-checkbox-box"><span></span></div> I agree to treatment</div>
+              <div class="pdf-checkbox"><div class="pdf-checkbox-box"><span></span></div> Authorize release</div>
+            </div>
+
+            <div class="pdf-signature-line">Patient Signature ___________________________</div>
+          </div>
+        </div>
+
+        <div class="desc-panel">
+          <div class="desc-badge" style="background:rgba(59,130,246,0.15);color:#60a5fa;">🧹 PHI Removed</div>
+          <div class="desc-title">Aspose.PDF flattens the document — all field values and interactive elements are erased</div>
+          <div class="desc-text">
+            The Aspose JAR clears all filled values, flattens every AcroForm field into the static page content, and outputs a clean "Blank Form Template." No PHI survives this step.
+          </div>
+
+          <div class="tech-pills">
+            <span class="tech-pill aspose">Aspose.PDF JAR</span>
+            <span class="tech-pill rails">Rails Controller</span>
+          </div>
+
+          <ul class="detail-list">
+            <li><span class="icon">🔧</span><strong>Aspose</strong> clears every field value, then calls <code>field.flatten()</code></li>
+            <li><span class="icon">🛡️</span>PHI wiped: John Smith → <em>(empty)</em>, 03/15/1985 → <em>(empty)</em></li>
+            <li><span class="icon">📄</span>Result: static PDF — looks like the original but with no interactive fields</li>
+            <li><span class="icon">💾</span>Flattened PDF stored in <code>form_templates.flattened_pdf</code></li>
+            <li><span class="icon">📊</span>Page dimensions captured (width, height in PDF points)</li>
+          </ul>
+
+          <div class="phi-callout">
+            <strong>🛡️ 7-Layer PHI Defense:</strong> Field values cleared → Fields flattened → Textract values discarded → No PHI in field mappings → No PHI in generated template → Admin UI never shows patient data → Database stores only blank templates.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STAGE 3: Canvas Overlay ═══════════ -->
+  <div class="stage-panel" id="stage2">
+    <div class="visual-card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(167,139,250,0.15);">🎨</div>
+        <div>
+          <div class="card-title">Stage 3 — PDF.js Render + Fabric.js Canvas Overlay</div>
+          <div class="card-subtitle">Browser renders the flattened PDF, interactive canvas layer sits on top</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pdf-frame" style="border: 2px solid rgba(167,139,250,0.4);">
+          <div class="pdf-page flattened" style="position:relative;">
+            <div class="canvas-overlay">
+              <div class="canvas-grid"></div>
+            </div>
+            <div class="pdf-logo">ACME SURGERY CENTER</div>
+            <div class="pdf-title">Patient Information Form</div>
+            <div class="pdf-line medium"></div>
+            <div class="pdf-line short"></div>
+
+            <div class="pdf-section-label">Patient Details</div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">First Name</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Last Name</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Date of Birth</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Phone</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Address</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+
+            <div class="pdf-section-label">Insurance</div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Provider</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Policy #</div>
+              <div class="pdf-field-box"><span class="filled-text"></span></div>
+            </div>
+
+            <div class="pdf-section-label">Consent</div>
+            <div class="pdf-checkbox-row">
+              <div class="pdf-checkbox"><div class="pdf-checkbox-box"></div> I agree to treatment</div>
+              <div class="pdf-checkbox"><div class="pdf-checkbox-box"></div> Authorize release</div>
+            </div>
+
+            <div class="pdf-signature-line">Patient Signature ___________________________</div>
+
+            <!-- Drop target: dashed blue field landing zone on First Name row -->
+            <div class="drop-target-field" style="top:155px;left:118px;width:200px;height:22px;">
+              PatientFirstName
+            </div>
+
+            <!-- Dashed drag trail line from sidebar to drop target -->
+            <div class="drag-trail" style="top:178px;left:318px;width:100px;transform:rotate(-38deg);"></div>
+
+            <!-- VAR chip being dragged (floating near the landing zone) -->
+            <div class="var-sidebar-chip" style="top:120px;right:20px;animation:dragFloat 2s ease infinite;">
+              <span class="chip-icon">🔗</span> PatientFirstName
+            </div>
+
+            <!-- Mini VAR sidebar panel (source) -->
+            <div class="var-source-panel">
+              <div class="panel-title">📋 Surgimate VARs</div>
+              <div class="var-item active"><span class="vi">🔗</span> PatientFirstName</div>
+              <div class="var-item"><span class="vi">📄</span> PatientLastName</div>
+              <div class="var-item"><span class="vi">📅</span> PatientDOB</div>
+              <div class="var-item"><span class="vi">📞</span> PatientPhone</div>
+              <div class="var-item"><span class="vi">🏠</span> PatientAddress</div>
+            </div>
+
+            <style>@keyframes pulse{0%,100%{transform:scale(1);opacity:0.6}50%{transform:scale(1.1);opacity:1}}</style>
+          </div>
+        </div>
+
+        <div class="desc-panel">
+          <div class="desc-badge" style="background:rgba(167,139,250,0.15);color:#a78bfa;">🎨 Interactive Canvas</div>
+          <div class="desc-title">Two layers working together — PDF underneath, editable canvas on top</div>
+          <div class="desc-text">
+            PDF.js renders the flattened template at full fidelity in the browser. Fabric.js adds a transparent, interactive canvas layer directly on top. This is where fields will be placed.
+          </div>
+
+          <div class="tech-pills">
+            <span class="tech-pill pdfjs">PDF.js</span>
+            <span class="tech-pill fabricjs">Fabric.js</span>
+            <span class="tech-pill angular">Angular</span>
+          </div>
+
+          <ul class="detail-list">
+            <li><span class="icon">📐</span><strong>PDF.js</strong> renders the flattened PDF pixel-perfect in a <code>&lt;canvas&gt;</code></li>
+            <li><span class="icon">🎨</span><strong>Fabric.js</strong> canvas sits on top — supports drag, drop, resize</li>
+            <li><span class="icon">🔍</span>HiDPI scaling (Device Pixel Ratio) for crisp text on retina displays</li>
+            <li><span class="icon">📏</span>Canvas coordinates ↔ PDF points conversion for accurate placement</li>
+            <li><span class="icon">📄</span>Multi-page navigation with page selector</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STAGE 4: Field Detection ═══════════ -->
+  <div class="stage-panel" id="stage3">
+    <div class="visual-card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(76,175,80,0.15);">🤖</div>
+        <div>
+          <div class="card-title">Stage 4 — AI-Assisted Field Detection &amp; VAR Auto-Mapping</div>
+          <div class="card-subtitle">Fields detected via Aspose (PATH A) or AWS Textract (PATH B), then mapped to Surgimate VARs</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pdf-frame" style="border: 2px solid rgba(76,175,80,0.4);">
+          <div class="pdf-page flattened" style="position:relative;">
+            <div class="canvas-overlay">
+              <div class="canvas-grid"></div>
+            </div>
+            <div class="pdf-logo">ACME SURGERY CENTER</div>
+            <div class="pdf-title">Patient Information Form</div>
+            <div class="pdf-line medium"></div>
+            <div class="pdf-line short"></div>
+
+            <div class="pdf-section-label">Patient Details</div>
+
+            <!-- Detected fields overlaid -->
+            <div class="pdf-field-row" style="position:relative;">
+              <div class="pdf-field-label">First Name</div>
+              <div class="pdf-field-box" style="position:relative;">
+                <div class="detected-field high" style="top:-2px;left:-2px;right:-2px;bottom:-2px;position:absolute;">
+                  <span>PatientFirstName</span>
+                  <span class="confidence-badge">96%</span>
+                  <span class="var-tag">🔗 PatientFirstName</span>
+                  <div class="handle tl"></div><div class="handle tr"></div><div class="handle bl"></div><div class="handle br"></div>
+                  <div class="handle ml"></div><div class="handle mr"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-field-row" style="position:relative;">
+              <div class="pdf-field-label">Last Name</div>
+              <div class="pdf-field-box" style="position:relative;">
+                <div class="detected-field high" style="top:-2px;left:-2px;right:-2px;bottom:-2px;position:absolute;">
+                  <span>PatientLastName</span>
+                  <span class="confidence-badge">94%</span>
+                  <span class="var-tag">🔗 PatientLastName</span>
+                  <div class="handle tl"></div><div class="handle tr"></div><div class="handle bl"></div><div class="handle br"></div>
+                  <div class="handle ml"></div><div class="handle mr"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-field-row" style="position:relative;">
+              <div class="pdf-field-label">Date of Birth</div>
+              <div class="pdf-field-box" style="position:relative;">
+                <div class="detected-field high" style="top:-2px;left:-2px;right:-2px;bottom:-2px;position:absolute;">
+                  <span>PatientDOB</span>
+                  <span class="confidence-badge">91%</span>
+                  <span class="var-tag">🔗 PatientDOB</span>
+                  <div class="handle tl"></div><div class="handle tr"></div><div class="handle bl"></div><div class="handle br"></div>
+                  <div class="handle ml"></div><div class="handle mr"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-field-row" style="position:relative;">
+              <div class="pdf-field-label">Phone</div>
+              <div class="pdf-field-box" style="position:relative;">
+                <div class="detected-field medium" style="top:-2px;left:-2px;right:-2px;bottom:-2px;position:absolute;">
+                  <span>Phone</span>
+                  <span class="confidence-badge">72%</span>
+                  <span class="var-tag">🔗 PatientPhoneHome</span>
+                  <div class="handle tl"></div><div class="handle tr"></div><div class="handle bl"></div><div class="handle br"></div>
+                  <div class="handle ml"></div><div class="handle mr"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-field-row" style="position:relative;">
+              <div class="pdf-field-label">Address</div>
+              <div class="pdf-field-box" style="position:relative;">
+                <div class="detected-field medium" style="top:-2px;left:-2px;right:-2px;bottom:-2px;position:absolute;">
+                  <span>Address</span>
+                  <span class="confidence-badge">68%</span>
+                  <span class="var-tag">🔗 PatientAddress</span>
+                  <div class="handle tl"></div><div class="handle tr"></div><div class="handle bl"></div><div class="handle br"></div>
+                  <div class="handle ml"></div><div class="handle mr"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-section-label">Insurance</div>
+            <div class="pdf-field-row" style="position:relative;">
+              <div class="pdf-field-label">Provider</div>
+              <div class="pdf-field-box" style="position:relative;">
+                <div class="detected-field low" style="top:-2px;left:-2px;right:-2px;bottom:-2px;position:absolute;">
+                  <span>Provider</span>
+                  <span class="confidence-badge">35%</span>
+                  <div class="handle tl"></div><div class="handle tr"></div><div class="handle bl"></div><div class="handle br"></div>
+                  <div class="handle ml"></div><div class="handle mr"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pdf-field-row" style="position:relative;">
+              <div class="pdf-field-label">Policy #</div>
+              <div class="pdf-field-box" style="position:relative;">
+                <div class="detected-field manual" style="top:-2px;left:-2px;right:-2px;bottom:-2px;position:absolute;">
+                  <span>Custom Field</span>
+                  <div class="handle tl"></div><div class="handle tr"></div><div class="handle bl"></div><div class="handle br"></div>
+                  <div class="handle ml"></div><div class="handle mr"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pdf-section-label">Consent</div>
+            <div class="pdf-checkbox-row" style="position:relative;">
+              <div class="pdf-checkbox" style="position:relative;">
+                <div class="checkbox-detected detected-field high" style="position:relative;display:inline-flex;margin-right:4px;">
+                  <div class="handle tl"></div><div class="handle br"></div>
+                </div>
+                 I agree to treatment
+              </div>
+              <div class="pdf-checkbox" style="position:relative;">
+                <div class="checkbox-detected detected-field high" style="position:relative;display:inline-flex;margin-right:4px;">
+                  <div class="handle tl"></div><div class="handle br"></div>
+                </div>
+                 Authorize release
+              </div>
+            </div>
+
+            <div class="pdf-signature-line">Patient Signature ___________________________</div>
+          </div>
+        </div>
+
+        <div class="desc-panel">
+          <div class="desc-badge" style="background:rgba(76,175,80,0.15);color:#4CAF50;">🤖 AI-Detected</div>
+          <div class="desc-title">Two detection paths, one smart result — fields auto-mapped to Surgimate VARs</div>
+          <div class="desc-text">
+            The system runs a dual-path detection strategy, then auto-maps labels to your existing Surgimate database variables using alias matching and fuzzy scoring.
+          </div>
+
+          <div class="tech-pills">
+            <span class="tech-pill aspose">Aspose — PATH A</span>
+            <span class="tech-pill textract">AWS Textract — PATH B</span>
+            <span class="tech-pill fabricjs">Fabric.js Canvas</span>
+            <span class="tech-pill rails">VarMatchingService</span>
+          </div>
+
+          <ul class="detail-list">
+            <li><span class="icon">🅰️</span><strong>PATH A (Aspose):</strong> Detects existing AcroForm fields — instant, zero cost</li>
+            <li><span class="icon">🅱️</span><strong>PATH B (Textract):</strong> Fallback if no AcroForm fields — AI scans visual layout for form areas</li>
+            <li><span class="icon">🔗</span><strong>Auto-Mapping:</strong> "First Name" → <code>PatientFirstName</code> (96% confidence)</li>
+            <li><span class="icon">🟢</span><span style="color:#4CAF50;font-weight:600;">Green ≥ 80%</span>&ensp;<span style="color:#FF9800;font-weight:600;">Orange ≥ 50%</span>&ensp;<span style="color:#f44336;font-weight:600;">Red &lt; 50%</span>&ensp;<span style="color:#2196F3;font-weight:600;">Blue = Manual</span></li>
+            <li><span class="icon">✏️</span>Users can accept, reject, re-map, resize, or add new fields manually</li>
+            <li><span class="icon">☑️</span>Checkboxes render as small squares — no label clutter</li>
+            <li><span class="icon">💾</span>Saved as JSON field mappings in <code>form_templates.field_mappings</code></li>
+          </ul>
+
+          <div class="cost-card">
+            <div class="cost-card-title">💰 Textract Cost — PATH B</div>
+            <table class="cost-table">
+              <thead>
+                <tr>
+                  <th>Forms</th>
+                  <th>Pages</th>
+                  <th style="text-align:right;">Cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>10</td>
+                  <td>20</td>
+                  <td class="cost" style="text-align:right;">$1.00</td>
+                </tr>
+                <tr>
+                  <td>100</td>
+                  <td>200</td>
+                  <td class="cost" style="text-align:right;">$10.00</td>
+                </tr>
+                <tr>
+                  <td>1,000</td>
+                  <td>2,000</td>
+                  <td class="cost" style="text-align:right;">$100.00</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="cost-note">
+              <strong>$0.05/page</strong> &nbsp;•&nbsp; Avg 2 pages/form<br>
+              <strong>One-time per template upload.</strong> Generate &amp; Download = Aspose only ($0).<br>
+              Free tier: 100 pages/mo for first 3 months.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Surgimate Form Builder Architecture — POC 2026 &nbsp;•&nbsp; Rails + Angular + Aspose.PDF + AWS Textract
+</div>
+
+<script>
+  let currentStage = 0;
+  let playing = false;
+  function showStage(idx) {
+    currentStage = idx;
+    document.querySelectorAll('.stage-panel').forEach((p, i) => {
+      p.classList.toggle('visible', i === idx);
+    });
+    document.querySelectorAll('.stage-btn').forEach((b, i) => {
+      b.classList.toggle('active', i === idx);
+    });
+  }
+
+  async function playAll() {
+    if (playing) return;
+    playing = true;
+    const btn = document.getElementById('playBtn');
+    btn.disabled = true;
+
+    for (let i = 0; i < 4; i++) {
+      const remaining = 4 - i;
+      btn.textContent = `⏳  Stage ${i + 1} of 4`;
+      showStage(i);
+      await new Promise(r => setTimeout(r, 5000));
+    }
+
+    playing = false;
+    btn.disabled = false;
+    btn.textContent = '▶  Play Full Pipeline';
+  }
+
+  /* ─── Architecture Modal ─── */
+  let archScale = 1;
+  let archPanX = 0;
+  let archPanY = 0;
+  let archDragging = false;
+  let archDragStartX = 0;
+  let archDragStartY = 0;
+  let archPanStartX = 0;
+  let archPanStartY = 0;
+  const ARCH_ZOOM_STEP = 0.25;
+  const ARCH_ZOOM_MIN = 0.5;
+  const ARCH_ZOOM_MAX = 3;
+
+  function archApplyTransform(smooth) {
+    const img = document.getElementById('archImg');
+    img.style.transition = smooth ? 'transform 0.15s ease' : 'none';
+    img.style.transform = `translate(${archPanX}px, ${archPanY}px) scale(${archScale})`;
+    img.classList.toggle('zoomed', archScale > 1);
+    document.getElementById('archZoomLevel').textContent = Math.round(archScale * 100) + '%';
+  }
+  function archZoom(dir) {
+    archScale = Math.min(ARCH_ZOOM_MAX, Math.max(ARCH_ZOOM_MIN, archScale + dir * ARCH_ZOOM_STEP));
+    if (archScale <= 1) { archPanX = 0; archPanY = 0; }
+    archApplyTransform(true);
+  }
+  function archZoomReset() {
+    archScale = 1; archPanX = 0; archPanY = 0;
+    archApplyTransform(true);
+  }
+  function archZoomToggle() {
+    if (archScale > 1) {
+      archScale = 1; archPanX = 0; archPanY = 0;
+    } else {
+      archScale = 2;
+    }
+    archApplyTransform(true);
+  }
+  function openArch() {
+    archScale = 1; archPanX = 0; archPanY = 0;
+    archApplyTransform(true);
+    document.getElementById('archOverlay').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeArch() {
+    document.getElementById('archOverlay').classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+  function closeArchOutside(e) {
+    if (e.target === document.getElementById('archOverlay')) closeArch();
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeArch();
+  });
+
+  // Drag / pan support
+  document.addEventListener('DOMContentLoaded', function() {
+    var body = document.getElementById('archModalBody');
+    if (!body) return;
+
+    body.addEventListener('mousedown', function(e) {
+      if (archScale <= 1) return;
+      archDragging = true;
+      archDragStartX = e.clientX;
+      archDragStartY = e.clientY;
+      archPanStartX = archPanX;
+      archPanStartY = archPanY;
+      body.classList.add('dragging');
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (!archDragging) return;
+      archPanX = archPanStartX + (e.clientX - archDragStartX);
+      archPanY = archPanStartY + (e.clientY - archDragStartY);
+      archApplyTransform(false);
+    });
+    document.addEventListener('mouseup', function() {
+      if (!archDragging) return;
+      archDragging = false;
+      var body = document.getElementById('archModalBody');
+      if (body) body.classList.remove('dragging');
+    });
+
+    // Mouse wheel zoom
+    body.addEventListener('wheel', function(e) {
+      if (!document.getElementById('archOverlay').classList.contains('visible')) return;
+      e.preventDefault();
+      archZoom(e.deltaY < 0 ? 1 : -1);
+    }, { passive: false });
+  });
+</script>
+
+</body>
+</html>

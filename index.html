@@ -1442,21 +1442,8 @@
 
             <div class="pdf-signature-line">Patient Signature ___________________________</div>
 
-            <!-- Drop target: dashed blue field landing zone on First Name row -->
-            <div class="drop-target-field" style="top:155px;left:118px;width:200px;height:22px;">
-              PatientFirstName
-            </div>
-
-            <!-- Dashed drag trail line from sidebar to drop target -->
-            <div class="drag-trail" style="top:178px;left:318px;width:100px;transform:rotate(-38deg);"></div>
-
-            <!-- VAR chip being dragged (floating near the landing zone) -->
-            <div class="var-sidebar-chip" style="top:120px;right:20px;animation:dragFloat 2s ease infinite;">
-              <span class="chip-icon">🔗</span> PatientFirstName
-            </div>
-
-            <!-- Mini VAR sidebar panel (source) -->
-            <div class="var-source-panel">
+            <!-- Mini VAR sidebar panel (source — far right, lower) -->
+            <div class="var-source-panel" style="right:-8px;top:280px;">
               <div class="panel-title">📋 Surgimate VARs</div>
               <div class="var-item active"><span class="vi">🔗</span> PatientFirstName</div>
               <div class="var-item"><span class="vi">📄</span> PatientLastName</div>
@@ -1464,6 +1451,22 @@
               <div class="var-item"><span class="vi">📞</span> PatientPhone</div>
               <div class="var-item"><span class="vi">🏠</span> PatientAddress</div>
             </div>
+
+            <!-- Drop target: dashed blue field landing zone on First Name row -->
+            <div class="drop-target-field" style="top:155px;left:118px;width:200px;height:22px;">
+              PatientFirstName
+            </div>
+
+            <!-- Dashed drag trail line from drop target right edge toward chip -->
+            <div class="drag-trail" style="top:166px;left:318px;width:60px;transform:rotate(46deg);"></div>
+
+            <!-- VAR chip being dragged (between panel and drop target) -->
+            <div class="var-sidebar-chip" style="top:195px;right:30px;animation:dragFloat 2s ease infinite;">
+              <span class="chip-icon">🔗</span> PatientFirstName
+            </div>
+
+            <!-- Dashed drag trail line from VARs panel up to chip -->
+            <div class="drag-trail" style="top:215px;left:360px;width:75px;transform:rotate(90deg);"></div>
 
             <style>@keyframes pulse{0%,100%{transform:scale(1);opacity:0.6}50%{transform:scale(1.1);opacity:1}}</style>
           </div>

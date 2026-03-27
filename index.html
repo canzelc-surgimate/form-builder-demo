@@ -820,6 +820,169 @@
     text-align: center;
   }
 
+  /* ─── Demo Recording Modal ─── */
+  .demo-btn {
+    padding: 12px 32px;
+    border: 2px solid #a78bfa;
+    border-radius: 30px;
+    background: #fff;
+    color: #a78bfa;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(167,139,250,0.1);
+  }
+  .demo-btn:hover { background: #a78bfa; color: #fff; box-shadow: 0 6px 24px rgba(167,139,250,0.3); transform: translateY(-1px); }
+
+  .video-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(6px);
+  }
+  .video-overlay.visible { display: flex; }
+  .video-modal {
+    position: relative;
+    width: 90vw;
+    max-width: 1100px;
+    background: #1e293b;
+    border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .video-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+  }
+  .video-modal-header h2 {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+  .video-close-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    color: #94a3b8;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .video-close-btn:hover { background: #ef4444; color: #fff; }
+  .video-modal-body {
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    background: #000;
+  }
+  .video-modal-body video {
+    width: 100%;
+    max-height: 80vh;
+    outline: none;
+  }
+
+  /* ─── Scribe Walkthrough Modal ─── */
+  .scribe-btn {
+    padding: 12px 32px;
+    border: 2px solid #4ade80;
+    border-radius: 30px;
+    background: #fff;
+    color: #16a34a;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(74,222,128,0.1);
+  }
+  .scribe-btn:hover { background: #16a34a; color: #fff; box-shadow: 0 6px 24px rgba(74,222,128,0.3); transform: translateY(-1px); }
+
+  .scribe-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(6px);
+  }
+  .scribe-overlay.visible { display: flex; }
+  .scribe-modal {
+    position: relative;
+    width: 90vw;
+    max-width: 1100px;
+    height: 85vh;
+    background: #1e293b;
+    border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .scribe-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    flex-shrink: 0;
+  }
+  .scribe-modal-header h2 {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+  .scribe-close-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    color: #94a3b8;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .scribe-close-btn:hover { background: #ef4444; color: #fff; }
+  .scribe-modal-body {
+    flex: 1;
+    padding: 0;
+    overflow: hidden;
+  }
+  .scribe-modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
   /* ─── Watermark effect for flattened ─── */
   .flatten-stamp {
     position: absolute;
@@ -868,11 +1031,44 @@
   <button class="stage-btn" onclick="showStage(3)">
     <span class="stage-num">4</span>Field Detection
   </button>
+  <button class="stage-btn" onclick="showStage(4)">
+    <span class="stage-num">5</span>Form Generation
+  </button>
 </div>
 
 <div class="play-row" style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;">
   <button class="play-btn" id="playBtn" onclick="playAll()">▶&ensp;Play Full Pipeline</button>
   <button class="arch-btn" onclick="openArch()">🏗&ensp;System Architecture</button>
+  <button class="demo-btn" onclick="openVideo()">🎬&ensp;Demo Recording</button>
+  <button class="scribe-btn" onclick="openScribe()">📝&ensp;Step-by-Step Guide</button>
+</div>
+
+<!-- Demo Recording Modal -->
+<div class="video-overlay" id="videoOverlay" onclick="closeVideoOutside(event)">
+  <div class="video-modal">
+    <div class="video-modal-header">
+      <h2>Form Builder — Demo Recording</h2>
+      <button class="video-close-btn" onclick="closeVideo()" title="Close">✕</button>
+    </div>
+    <div class="video-modal-body">
+      <video id="demoVideo" controls preload="metadata">
+        <source src="form_builder_demo_recording.mp4" type="video/mp4">
+        <source src="form_builder_demo_recording.webm" type="video/webm">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</div>
+
+<!-- Scribe Walkthrough Modal -->
+<div class="scribe-overlay" id="scribeOverlay" onclick="closeScribeOutside(event)">
+  <div class="scribe-modal">
+    <div class="scribe-modal-header">
+      <h2>How to Upload and Configure PDF Form Templates</h2>
+      <button class="scribe-close-btn" onclick="closeScribe()" title="Close">✕</button>
+    </div>
+    <div class="scribe-modal-body" id="scribeBody"></div>
+  </div>
 </div>
 
 <!-- Architecture Modal -->
@@ -1191,8 +1387,8 @@
       <div class="card-header">
         <div class="card-icon" style="background:rgba(76,175,80,0.15);">🤖</div>
         <div>
-          <div class="card-title">Stage 4 — AI-Assisted Field Detection &amp; VAR Auto-Mapping</div>
-          <div class="card-subtitle">Fields detected via Aspose (PATH A) or AWS Textract (PATH B), then mapped to Surgimate VARs</div>
+          <div class="card-title">Stage 4 — AI-Assisted Field Detection, OCR &amp; VAR Auto-Mapping</div>
+          <div class="card-subtitle">Fields detected via Aspose (PATH A) or AWS Textract OCR (PATH B), then mapped to Surgimate VARs</div>
         </div>
       </div>
       <div class="card-body">
@@ -1318,31 +1514,30 @@
         </div>
 
         <div class="desc-panel">
-          <div class="desc-badge" style="background:rgba(76,175,80,0.15);color:#4CAF50;">🤖 AI-Detected</div>
-          <div class="desc-title">Two detection paths, one smart result — fields auto-mapped to Surgimate VARs</div>
+          <div class="desc-badge" style="background:rgba(76,175,80,0.15);color:#4CAF50;">🤖 AI + OCR</div>
+          <div class="desc-title">Dual-path detection with OCR — fields auto-mapped to Surgimate VARs</div>
           <div class="desc-text">
-            The system runs a dual-path detection strategy, then auto-maps labels to your existing Surgimate database variables using alias matching and fuzzy scoring.
+            PATH A uses Aspose for structured AcroForm fields. PATH B uses Textract OCR to scan labels and layout — even on scanned or image-based PDFs. Detected fields are auto-mapped to Surgimate VARs.
           </div>
 
           <div class="tech-pills">
             <span class="tech-pill aspose">Aspose — PATH A</span>
-            <span class="tech-pill textract">AWS Textract — PATH B</span>
+            <span class="tech-pill textract">Textract OCR — PATH B</span>
             <span class="tech-pill fabricjs">Fabric.js Canvas</span>
             <span class="tech-pill rails">VarMatchingService</span>
           </div>
 
           <ul class="detail-list">
-            <li><span class="icon">🅰️</span><strong>PATH A (Aspose):</strong> Detects existing AcroForm fields — instant, zero cost</li>
-            <li><span class="icon">🅱️</span><strong>PATH B (Textract):</strong> Fallback if no AcroForm fields — AI scans visual layout for form areas</li>
+            <li><span class="icon">🅰️</span><strong>PATH A (Aspose):</strong> Detects AcroForm fields — instant, zero cost</li>
+            <li><span class="icon">🅱️</span><strong>PATH B (Textract OCR):</strong> Fallback — OCR reads labels, detects KEY-VALUE pairs &amp; checkboxes</li>
             <li><span class="icon">🔗</span><strong>Auto-Mapping:</strong> "First Name" → <code>PatientFirstName</code> (96% confidence)</li>
             <li><span class="icon">🟢</span><span style="color:#4CAF50;font-weight:600;">Green ≥ 80%</span>&ensp;<span style="color:#FF9800;font-weight:600;">Orange ≥ 50%</span>&ensp;<span style="color:#f44336;font-weight:600;">Red &lt; 50%</span>&ensp;<span style="color:#2196F3;font-weight:600;">Blue = Manual</span></li>
-            <li><span class="icon">✏️</span>Users can accept, reject, re-map, resize, or add new fields manually</li>
-            <li><span class="icon">☑️</span>Checkboxes render as small squares — no label clutter</li>
-            <li><span class="icon">💾</span>Saved as JSON field mappings in <code>form_templates.field_mappings</code></li>
+            <li><span class="icon">✏️</span>Users can accept, reject, re-map, resize, or add fields manually</li>
+            <li><span class="icon">💾</span>Saved as JSON in <code>form_templates.field_mappings</code></li>
           </ul>
 
           <div class="cost-card">
-            <div class="cost-card-title">💰 Textract Cost — PATH B</div>
+            <div class="cost-card-title">💰 Textract OCR + Forms Cost — PATH B</div>
             <table class="cost-table">
               <thead>
                 <tr>
@@ -1370,11 +1565,96 @@
               </tbody>
             </table>
             <div class="cost-note">
-              <strong>$0.05/page</strong> &nbsp;•&nbsp; Avg 2 pages/form<br>
+              <strong>$0.05/page</strong> (OCR + Forms analysis) &nbsp;•&nbsp; Avg 2 pages/form<br>
               <strong>One-time per template upload.</strong> Generate &amp; Download = Aspose only ($0).<br>
-              Free tier: 100 pages/mo for first 3 months.
+              Free tier: 100 pages/mo for first 3 months. OCR included in AnalyzeDocument price.
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STAGE 5: Form Generation ═══════════ -->
+  <div class="stage-panel" id="stage4">
+    <div class="visual-card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(34,197,94,0.15);">✅</div>
+        <div>
+          <div class="card-title">Stage 5 — Filled Form Generation from Surgical Event</div>
+          <div class="card-subtitle">Field mappings + event VARs XML → Aspose fills the flattened PDF with real patient data</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pdf-frame" style="border: 2px solid rgba(34,197,94,0.4);">
+          <div class="pdf-page">
+            <div class="pdf-logo">ACME SURGERY CENTER</div>
+            <div class="pdf-title">Patient Information Form</div>
+            <div class="pdf-line medium"></div>
+            <div class="pdf-line short"></div>
+
+            <div class="pdf-section-label">Patient Details</div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">First Name</div>
+              <div class="pdf-field-box" style="background:#eef7ee;border-color:#4ade80;"><span class="filled-text" style="color:#166534;">Jane</span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Last Name</div>
+              <div class="pdf-field-box" style="background:#eef7ee;border-color:#4ade80;"><span class="filled-text" style="color:#166534;">Doe</span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Date of Birth</div>
+              <div class="pdf-field-box" style="background:#eef7ee;border-color:#4ade80;"><span class="filled-text" style="color:#166534;">07/22/1990</span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Phone</div>
+              <div class="pdf-field-box" style="background:#eef7ee;border-color:#4ade80;"><span class="filled-text" style="color:#166534;">(555) 987-6543</span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Address</div>
+              <div class="pdf-field-box" style="background:#eef7ee;border-color:#4ade80;"><span class="filled-text" style="color:#166534;">456 Oak Ave, Springfield</span></div>
+            </div>
+
+            <div class="pdf-section-label">Insurance</div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Provider</div>
+              <div class="pdf-field-box" style="background:#eef7ee;border-color:#4ade80;"><span class="filled-text" style="color:#166534;">Blue Cross PPO</span></div>
+            </div>
+            <div class="pdf-field-row">
+              <div class="pdf-field-label">Policy #</div>
+              <div class="pdf-field-box" style="background:#eef7ee;border-color:#4ade80;"><span class="filled-text" style="color:#166534;">BCX-9981204</span></div>
+            </div>
+
+            <div class="pdf-section-label">Consent</div>
+            <div class="pdf-checkbox-row">
+              <div class="pdf-checkbox"><div class="pdf-checkbox-box" style="border-color:#4ade80;"><span style="color:#166534;">✓</span></div> I agree to treatment</div>
+              <div class="pdf-checkbox"><div class="pdf-checkbox-box" style="border-color:#4ade80;"><span style="color:#166534;">✓</span></div> Authorize release</div>
+            </div>
+
+            <div class="pdf-signature-line">Patient Signature ___________________________</div>
+          </div>
+        </div>
+
+        <div class="desc-panel">
+          <div class="desc-badge" style="background:rgba(34,197,94,0.15);color:#4ade80;">✅ Filled &amp; Ready</div>
+          <div class="desc-title">Aspose merges event data into the template — print, download, or save as attachment</div>
+          <div class="desc-text">
+            When a user prints or downloads from the surgical event, the system pulls patient/event VARs as XML, matches them to field mappings, and Aspose writes values into the flattened PDF.
+          </div>
+
+          <div class="tech-pills">
+            <span class="tech-pill aspose">Aspose.PDF JAR</span>
+            <span class="tech-pill rails">Rails Controller</span>
+            <span class="tech-pill angular">Angular Print Tab</span>
+          </div>
+
+          <ul class="detail-list">
+            <li><span class="icon">📋</span><strong>VARs XML:</strong> <code>event.to_document_xml</code> generates patient &amp; event data</li>
+            <li><span class="icon">🔧</span><strong>Aspose</strong> reads field_mappings JSON, looks up each VAR in XML, writes values at x/y coordinates</li>
+            <li><span class="icon">🧮</span><strong>Calculated fields:</strong> Formulas like <code>{PatientLastName} - {PatientFirstName}</code> resolved at fill time</li>
+            <li><span class="icon">📎</span><strong>Save as Attachment:</strong> Optionally stores filled PDF in the event's attachments tab</li>
+            <li><span class="icon">🖨️</span>Output: inline preview, download, or print — all from the same endpoint</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -1405,9 +1685,8 @@
     const btn = document.getElementById('playBtn');
     btn.disabled = true;
 
-    for (let i = 0; i < 4; i++) {
-      const remaining = 4 - i;
-      btn.textContent = `⏳  Stage ${i + 1} of 4`;
+    for (let i = 0; i < 5; i++) {
+      btn.textContent = `⏳  Stage ${i + 1} of 5`;
       showStage(i);
       await new Promise(r => setTimeout(r, 5000));
     }
@@ -1415,6 +1694,43 @@
     playing = false;
     btn.disabled = false;
     btn.textContent = '▶  Play Full Pipeline';
+  }
+
+  /* ─── Demo Recording Modal ─── */
+  function openVideo() {
+    document.getElementById('videoOverlay').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+    var v = document.getElementById('demoVideo');
+    v.currentTime = 0;
+    v.play().catch(function(){});
+  }
+  function closeVideo() {
+    var v = document.getElementById('demoVideo');
+    v.pause();
+    document.getElementById('videoOverlay').classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+  function closeVideoOutside(e) {
+    if (e.target === document.getElementById('videoOverlay')) closeVideo();
+  }
+
+  /* ─── Scribe Walkthrough Modal ─── */
+  var scribeLoaded = false;
+  function openScribe() {
+    document.getElementById('scribeOverlay').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+    if (!scribeLoaded) {
+      document.getElementById('scribeBody').innerHTML =
+        '<iframe src="https://scribehow.com/embed/How_to_Upload_and_Configure_PDF_Form_Templates__ZdwCBwqSS-yOIhrhW4QLvw?as=video" allow="fullscreen"></iframe>';
+      scribeLoaded = true;
+    }
+  }
+  function closeScribe() {
+    document.getElementById('scribeOverlay').classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+  function closeScribeOutside(e) {
+    if (e.target === document.getElementById('scribeOverlay')) closeScribe();
   }
 
   /* ─── Architecture Modal ─── */
@@ -1468,7 +1784,11 @@
     if (e.target === document.getElementById('archOverlay')) closeArch();
   }
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeArch();
+    if (e.key === 'Escape') {
+      closeArch();
+      closeVideo();
+      closeScribe();
+    }
   });
 
   // Drag / pan support

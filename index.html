@@ -1008,6 +1008,118 @@
     border-top: 1px solid rgba(255,255,255,0.05);
     margin-top: 40px;
   }
+
+  /* ─── Mobile / Tablet Responsive ─── */
+  @media (max-width: 768px) {
+    .header { padding: 24px 16px 12px; }
+    .header h1 { font-size: 22px; }
+    .header p { font-size: 13px; }
+
+    .stage-nav {
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 16px 12px 8px;
+      max-width: 100%;
+    }
+    .stage-btn {
+      flex: 0 0 auto;
+      width: calc(33.33% - 3px);
+      max-width: none;
+      padding: 10px 4px 8px;
+      font-size: 9px;
+      letter-spacing: 0;
+      border-radius: 8px !important;
+      border-right: none !important;
+    }
+    .stage-btn:not(:last-child) { border-right: none; }
+    .stage-num { font-size: 18px; }
+
+    .play-row { gap: 8px !important; padding: 0 12px; }
+    .play-btn,
+    .arch-btn,
+    .demo-btn,
+    .scribe-btn {
+      padding: 10px 16px;
+      font-size: 12px;
+      flex: 1 1 calc(50% - 8px);
+      min-width: 0;
+    }
+
+    .stage-container { padding: 0 12px; margin: 8px auto 24px; }
+
+    .card-header { padding: 12px 14px; gap: 8px; }
+    .card-icon { width: 32px; height: 32px; font-size: 16px; }
+    .card-title { font-size: 13px; }
+    .card-subtitle { font-size: 10px; }
+
+    .card-body {
+      flex-direction: column;
+      padding: 14px;
+      gap: 16px;
+    }
+
+    .pdf-frame {
+      width: 100%;
+      min-width: 0;
+    }
+    .pdf-page {
+      padding: 18px 16px 14px;
+      min-height: auto;
+    }
+    .pdf-logo { width: 130px; height: 26px; font-size: 10px; }
+    .pdf-title { font-size: 13px; }
+    .pdf-field-label { min-width: 70px; font-size: 9px; }
+    .pdf-field-box { height: 20px; }
+    .pdf-field-box .filled-text { font-size: 8px; }
+    .pdf-section-label { font-size: 9px; margin: 10px 0 4px; }
+    .pdf-checkbox { font-size: 8px; }
+    .pdf-checkbox-box { width: 11px; height: 11px; font-size: 8px; }
+    .pdf-signature-line { font-size: 8px; }
+
+    .detected-field { font-size: 7px; padding: 0 4px; }
+    .detected-field .confidence-badge { font-size: 6px; padding: 1px 3px; top: -8px; }
+    .detected-field .var-tag { font-size: 6px; padding: 1px 3px; }
+    .detected-field .handle { width: 5px; height: 5px; }
+
+    .var-sidebar-chip { font-size: 8px; padding: 3px 6px; }
+    .var-source-panel { width: 84px; padding: 4px; top: 40px; right: -4px; }
+    .var-source-panel .panel-title { font-size: 7px; }
+    .var-source-panel .var-item { font-size: 7px; padding: 2px 3px; }
+    .drop-target-field { font-size: 7px; padding: 0 4px; }
+
+    .desc-panel { min-width: 0; }
+    .desc-badge { font-size: 10px; padding: 4px 10px; }
+    .desc-title { font-size: 16px; }
+    .desc-text { font-size: 12px; }
+    .tech-pills { gap: 4px; }
+    .tech-pill { font-size: 10px; padding: 3px 8px; }
+    .detail-list li { font-size: 11px; }
+    .detail-list li .icon { font-size: 12px; }
+
+    .cost-card { padding: 10px 12px; }
+    .cost-card-title { font-size: 12px; }
+    .cost-table { font-size: 11px; }
+    .cost-table th { font-size: 9px; }
+    .cost-note { font-size: 9px; }
+
+    .phi-callout { font-size: 10px; padding: 8px 10px; }
+
+    .flatten-stamp { font-size: 32px; letter-spacing: 4px; }
+
+    .footer { font-size: 10px; padding: 14px; }
+  }
+
+  @media (max-width: 420px) {
+    .header h1 { font-size: 18px; }
+    .stage-btn { font-size: 8px; padding: 8px 2px 6px; }
+    .stage-num { font-size: 16px; }
+    .play-btn,
+    .arch-btn,
+    .demo-btn,
+    .scribe-btn { font-size: 11px; padding: 8px 10px; }
+    .desc-title { font-size: 14px; }
+    .card-title { font-size: 12px; }
+  }
 </style>
 </head>
 <body>
